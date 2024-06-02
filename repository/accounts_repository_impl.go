@@ -4,7 +4,6 @@ import (
 	"errors"
 	"gorm.io/gorm"
 	"roastkuy-api/data/request"
-	"roastkuy-api/helper"
 	"roastkuy-api/model"
 )
 
@@ -16,9 +15,13 @@ func NewAccountsRepositoryImpl(Db *gorm.DB) AccountsRepository {
 	return &AccountsRepositoryImpl{Db: Db}
 }
 
-func (a AccountsRepositoryImpl) Save(accounts model.Accounts) {
-	result := a.Db.Create(&accounts)
-	helper.ErrorPanic(result.Error)
+func (a AccountsRepositoryImpl) BeginTransaction() *gorm.DB {
+	return a.Db.Begin()
+}
+
+func (a AccountsRepositoryImpl) Save(tx *gorm.DB, accounts model.Accounts) error {
+	result := tx.Create(&accounts)
+	return result.Error
 }
 
 func (a AccountsRepositoryImpl) Update(accounts model.Accounts) error {

@@ -43,8 +43,18 @@ func (a AuthServiceImpl) Login(account request.LoginRequest) (string, time.Time,
 }
 
 func (a AuthServiceImpl) Register(account request.CreateAccountRequest) {
+	tx := a.AccountsRepository.BeginTransaction()
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+			panic(r)
+		}
+	}()
+
 	hashedPassword, err := utils.HashPassword(account.Password)
 	if err != nil {
+		tx.Rollback()
 		panic(err)
 	}
 
@@ -55,5 +65,11 @@ func (a AuthServiceImpl) Register(account request.CreateAccountRequest) {
 		Phone:    account.Phone,
 	}
 
-	a.AccountsRepository.Save(newuser)
+	err = a.AccountsRepository.Save(tx, newuser)
+	if err != nil {
+		tx.Rollback()
+		panic(err)
+	}
+
+	tx.Commit()
 }
