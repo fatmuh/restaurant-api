@@ -17,7 +17,7 @@ func NewRouter(authController *controller.AuthController) *gin.Engine {
 
 	authRouter := baseRouter.Group("/auth")
 	authRouter.POST("/register", authController.Register)
-	authRouter.POST("/login", authController.Login)
+	authRouter.POST("/login", authController.HandleLogin)
 
 	return router
 }

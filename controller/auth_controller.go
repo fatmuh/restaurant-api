@@ -17,11 +17,7 @@ func NewAuthController(service service.AuthService) *AuthController {
 	return &AuthController{service}
 }
 
-func (controller *AuthController) Login(ctx *gin.Context) {
-	loginRequest := request.LoginRequest{}
-	err := ctx.ShouldBindJSON(&loginRequest)
-	helper.ErrorPanic(err)
-
+func (controller *AuthController) Login(ctx *gin.Context, loginRequest request.LoginRequest) {
 	token, expiresIn, err_token := controller.authService.Login(loginRequest)
 
 	if err_token != nil {
@@ -70,16 +66,29 @@ func (controller *AuthController) Login(ctx *gin.Context) {
 
 }
 
+func (controller *AuthController) HandleLogin(ctx *gin.Context) {
+	loginRequest := request.LoginRequest{}
+	err := ctx.ShouldBindJSON(&loginRequest)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	controller.Login(ctx, loginRequest)
+}
+
 func (controller *AuthController) Register(ctx *gin.Context) {
 	createUserRequest := request.CreateAccountRequest{}
 	err := ctx.ShouldBindJSON(&createUserRequest)
 	helper.ErrorPanic(err)
 
 	controller.authService.Register(createUserRequest)
-	webResponse := response.Response{
-		Code:    "Sukses",
-		Message: "Success Create User",
-		Data:    nil,
+	// Get the login credentials from the registration request
+	loginRequest := request.LoginRequest{
+		Email:    createUserRequest.Email,
+		Password: createUserRequest.Password,
 	}
-	ctx.JSON(http.StatusOK, webResponse)
+
+	// Login the user
+	controller.Login(ctx, loginRequest)
 }
