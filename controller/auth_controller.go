@@ -72,6 +72,17 @@ func (controller *AuthController) Login(ctx *gin.Context, loginRequest request.L
 func (controller *AuthController) HandleLogin(ctx *gin.Context) {
 	loginRequest := request.LoginRequest{}
 	err := ctx.ShouldBindJSON(&loginRequest)
+
+	err = validate.Struct(loginRequest)
+	if err != nil {
+		// Handle validation errors with custom messages
+		errors := helper.FormatValidationError(err)
+		ctx.JSON(400, gin.H{
+			"errors": errors,
+		})
+		return
+	}
+
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
