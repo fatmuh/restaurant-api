@@ -29,7 +29,7 @@ func main() {
 	accountsRepository := repository.NewAccountsRepositoryImpl(db)
 
 	// Service
-	authenticationService := service.NewAuthenticationServiceImpl(accountsRepository, validate)
+	authenticationService := service.NewAuthenticationServiceImpl(accountsRepository, validate, db)
 
 	// Controller
 	authenticationController := controller.NewAuthController(authenticationService)

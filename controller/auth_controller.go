@@ -2,12 +2,15 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"net/http"
 	"roastkuy-api/data/request"
 	"roastkuy-api/data/response"
 	"roastkuy-api/helper"
 	"roastkuy-api/service"
 )
+
+var validate = validator.New()
 
 type AuthController struct {
 	authService service.AuthService
@@ -81,6 +84,16 @@ func (controller *AuthController) Register(ctx *gin.Context) {
 	createUserRequest := request.CreateAccountRequest{}
 	err := ctx.ShouldBindJSON(&createUserRequest)
 	helper.ErrorPanic(err)
+
+	err = validate.Struct(createUserRequest)
+	if err != nil {
+		// Handle validation errors with custom messages
+		errors := helper.FormatValidationError(err)
+		ctx.JSON(400, gin.H{
+			"errors": errors,
+		})
+		return
+	}
 
 	controller.authService.Register(createUserRequest)
 	// Get the login credentials from the registration request

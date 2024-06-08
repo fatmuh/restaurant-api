@@ -3,6 +3,8 @@ package service
 import (
 	"errors"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 	config2 "roastkuy-api/config"
 	"roastkuy-api/data/request"
 	"roastkuy-api/helper"
@@ -15,12 +17,14 @@ import (
 type AuthServiceImpl struct {
 	AccountsRepository repository.AccountsRepository
 	Validate           *validator.Validate
+	DB                 *gorm.DB
 }
 
-func NewAuthenticationServiceImpl(accountRepository repository.AccountsRepository, validate *validator.Validate) AuthService {
+func NewAuthenticationServiceImpl(accountRepository repository.AccountsRepository, validate *validator.Validate, db *gorm.DB) AuthService {
 	return &AuthServiceImpl{
 		AccountsRepository: accountRepository,
 		Validate:           validate,
+		DB:                 db,
 	}
 }
 
@@ -59,10 +63,13 @@ func (a AuthServiceImpl) Register(account request.CreateAccountRequest) {
 	}
 
 	newuser := model.Accounts{
-		Name:     account.Name,
-		Email:    account.Email,
-		Password: hashedPassword,
-		Phone:    account.Phone,
+		Name:         account.Name,
+		Email:        account.Email,
+		Password:     hashedPassword,
+		MemberNumber: utils.GenerateMemberNumber(a.DB),
+		Phone:        account.Phone,
+		Roles:        1,
+		Uuid:         uuid.New().String(),
 	}
 
 	err = a.AccountsRepository.Save(tx, newuser)
