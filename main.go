@@ -27,15 +27,18 @@ func main() {
 
 	// Repository
 	accountsRepository := repository.NewAccountsRepositoryImpl(db)
+	outletsRepository := repository.NewOutletsRepositoryImpl(db)
 
 	// Service
 	authenticationService := service.NewAuthenticationServiceImpl(accountsRepository, validate, db)
+	outletsService := service.NewOutletsServiceImpl(outletsRepository, validate)
 
 	// Controller
 	authenticationController := controller.NewAuthController(authenticationService)
+	outletsController := controller.NewOutletsController(outletsService)
 
 	// Router
-	routes := router.NewRouter(authenticationController)
+	routes := router.NewRouter(authenticationController, outletsController)
 
 	routes.GET("/api", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"message": "hello world"})

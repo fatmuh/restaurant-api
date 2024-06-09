@@ -6,7 +6,7 @@ import (
 	"roastkuy-api/controller"
 )
 
-func NewRouter(authController *controller.AuthController) *gin.Engine {
+func NewRouter(authController *controller.AuthController, outletsController *controller.OutletsController) *gin.Engine {
 	router := gin.Default()
 
 	router.GET("", func(ctx *gin.Context) {
@@ -19,5 +19,8 @@ func NewRouter(authController *controller.AuthController) *gin.Engine {
 	authRouter.POST("/register", authController.Register)
 	authRouter.POST("/login", authController.HandleLogin)
 
+	outletRouter := baseRouter.Group("/outlet")
+	outletRouter.GET("", outletsController.FindAll)
+	outletRouter.GET("/:slug", outletsController.FindBySlug)
 	return router
 }
