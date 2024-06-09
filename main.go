@@ -44,7 +44,7 @@ func main() {
 	promosController := controller.NewPromosController(promosService)
 
 	// Router
-	routes := router.NewRouter(authenticationController, outletsController, menusController, promosController)
+	routes := router.NewRouter(accountsRepository, authenticationController, outletsController, menusController, promosController)
 
 	routes.GET("/api", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"message": "hello world"})

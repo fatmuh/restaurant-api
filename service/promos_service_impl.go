@@ -16,8 +16,23 @@ func NewPromosServiceImpl(promosRepository repository.PromosRepository, validate
 }
 
 func (p PromosServiceImpl) FindAll(accountID int) []response.PromosResponse {
-	//TODO implement me
-	panic("implement me")
+	result := p.PromosRepository.FindAll(accountID)
+
+	var promos []response.PromosResponse
+	for _, value := range result {
+		promo := response.PromosResponse{
+			PromoName:       value.PromoName,
+			Image:           value.Image,
+			Type:            value.Type,
+			OutdatePromo:    value.OutdatePromo,
+			Description:     value.Description,
+			DetailTutorial:  value.DetailTutorial,
+			DetailCondition: value.DetailCondition,
+		}
+		promos = append(promos, promo)
+	}
+
+	return promos
 }
 
 func (p PromosServiceImpl) FindRegular() []response.PromosResponse {

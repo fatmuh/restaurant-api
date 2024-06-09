@@ -42,6 +42,17 @@ func DeserializeAccounts(accountsRepository repository.AccountsRepository) gin.H
 		}
 
 		ctx.Set("currentUser", result)
+		ctx.Set("userID", result.Id)
 		ctx.Next()
 	}
+}
+
+func GetUserID(c *gin.Context) (int, bool) {
+	userID, exists := c.Get("userID")
+	if !exists {
+		return 0, false
+	}
+
+	uid, ok := userID.(int)
+	return uid, ok
 }

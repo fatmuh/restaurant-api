@@ -4,9 +4,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"roastkuy-api/controller"
+	"roastkuy-api/middleware"
+	"roastkuy-api/repository"
 )
 
-func NewRouter(authController *controller.AuthController, outletsController *controller.OutletsController, menusController *controller.MenusController, promosController *controller.PromosController) *gin.Engine {
+func NewRouter(accountRepository repository.AccountsRepository, authController *controller.AuthController, outletsController *controller.OutletsController, menusController *controller.MenusController, promosController *controller.PromosController) *gin.Engine {
 	router := gin.Default()
 
 	router.GET("", func(ctx *gin.Context) {
@@ -28,6 +30,9 @@ func NewRouter(authController *controller.AuthController, outletsController *con
 
 	menuDetailRouter := baseRouter.Group("/menu-detail")
 	menuDetailRouter.GET("/:menuId", menusController.FindById)
+
+	promoRouter := baseRouter.Group("/promo")
+	promoRouter.GET("", middleware.DeserializeAccounts(accountRepository), promosController.FindAll)
 
 	promoRegularRouter := baseRouter.Group("/promo-regular")
 	promoRegularRouter.GET("", promosController.FindRegular)
